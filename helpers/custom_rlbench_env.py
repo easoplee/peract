@@ -5,11 +5,11 @@ from rlbench import ObservationConfig, ActionMode
 from rlbench.backend.exceptions import InvalidActionError
 from rlbench.backend.observation import Observation
 from rlbench.backend.task import Task
-from yarr.agents.agent import ActResult, VideoSummary, TextSummary
-from yarr.envs.rlbench_env import RLBenchEnv, MultiTaskRLBenchEnv
-from yarr.utils.observation_type import ObservationElement
-from yarr.utils.transition import Transition
-from yarr.utils.process_str import change_case
+from lib.yarr.agents.agent import ActResult, VideoSummary, TextSummary
+from lib.yarr.envs.rlbench_env import RLBenchEnv, MultiTaskRLBenchEnv
+from lib.yarr.utils.observation_type import ObservationElement
+from lib.yarr.utils.transition import Transition
+# from yarr.utils.process_str import change_case
 
 from pyrep.const import RenderMode
 from pyrep.errors import IKError, ConfigurationPathError
@@ -136,6 +136,7 @@ class CustomRLBenchEnv(RLBenchEnv):
 
         try:
             obs, reward, terminal = self._task.step(action)
+            print("terminal: ", terminal)
             if reward >= 1:
                 success = True
                 reward *= self._reward_scale
@@ -149,10 +150,13 @@ class CustomRLBenchEnv(RLBenchEnv):
 
             if isinstance(e, IKError):
                 self._error_type_counts['IKError'] += 1
+                print("IKError")
             elif isinstance(e, ConfigurationPathError):
                 self._error_type_counts['ConfigurationPathError'] += 1
+                print("ConfigurationPathError")
             elif isinstance(e, InvalidActionError):
                 self._error_type_counts['InvalidActionError'] += 1
+                print("InvalidActionError")
 
             self._last_exception = e
 
@@ -180,7 +184,6 @@ class CustomRLBenchEnv(RLBenchEnv):
     def reset_to_demo(self, i):
         self._i = 0
         # super(CustomRLBenchEnv, self).reset()
-
         self._task.set_variation(-1)
         d, = self._task.get_demos(
             1, live_demos=False, random_selection=False, from_episode_number=i)
@@ -252,13 +255,12 @@ class CustomMultiTaskRLBenchEnv(MultiTaskRLBenchEnv):
         # obs.gripper_pose = None
         obs.gripper_matrix = None
         obs.wrist_camera_matrix = None
-        obs.joint_positions = None
+        # obs.joint_positions = None
         if obs.gripper_joint_positions is not None:
             obs.gripper_joint_positions = np.clip(
                 obs.gripper_joint_positions, 0., 0.04)
 
         obs_dict = super(CustomMultiTaskRLBenchEnv, self).extract_obs(obs)
-
         if self._time_in_state:
             time = (1. - ((self._i if t is None else t) / float(
                 self._episode_length - 1))) * 2. - 1.
