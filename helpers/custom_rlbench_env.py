@@ -9,7 +9,7 @@ from lib.yarr.agents.agent import ActResult, VideoSummary, TextSummary
 from lib.yarr.envs.rlbench_env import RLBenchEnv, MultiTaskRLBenchEnv
 from lib.yarr.utils.observation_type import ObservationElement
 from lib.yarr.utils.transition import Transition
-# from yarr.utils.process_str import change_case
+from lib.yarr.utils.process_str import change_case
 
 from pyrep.const import RenderMode
 from pyrep.errors import IKError, ConfigurationPathError
